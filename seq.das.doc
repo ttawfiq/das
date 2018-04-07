@@ -1,0 +1,48 @@
+
+@ \section{Examples} The first example is cute. All it does is read a
+number into the register, then it keeps incrementing that number and
+printing it; nothing else. Note that this program never ends on
+purpose. Hit [[^C]] to stop.
+
+<<seq.das>>=
+# prints a sequence of numbers
+
+        get            # read first number
+loop    add     one    # increment
+        put
+        j       loop   # again
+one     const   1
+
+# this program never ends
+
+@ By the default, the assembler prints a debug information after
+assembling the program; for example, the following session serves as an
+example.
+
+\begin{verbatim}
+%./das seq.das
+   0:  01000          get            # read first number
+   1:  05004  loop    add     one    # increment
+   2:  02000          put
+   3:  09001          j       loop   # again
+   4:  00001  one     const   1
+
+%ls -l seq
+-rwxr-xr-x  1 dbastos  dbastos  22 Aug 18 08:05 seq*
+
+%./vm seq
+-3          # entered by the user
+-2
+-1
+0
+1
+2
+^C
+\end{verbatim}
+
+Although we create an executable program, that's just a text file with
+machine code. To execute the program, you must call [[vm]] passing the
+program as the first argument. It would be nice to have [[vm]] as an
+interpreter, so that we can generate programs in which the first line
+would be [[#!/path/to/vm]] and they'd be true UNIX executables.
+

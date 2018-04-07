@@ -1,0 +1,77 @@
+
+\documentclass[a4paper,12pt]{article}
+\usepackage{noweb}%\pagestyle{noweb}
+\noweboptions{noxref,smallcode}
+\addtolength{\topmargin}{-0.5in}
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{6.9in}
+\setlength{\oddsidemargin}{-.3in}
+\setlength{\evensidemargin}{-.1in}
+\begin{document}
+
+\def\nwendcode{\endtrivlist \endgroup}
+\let\nwdocspar=\par
+
+\date{August 9th 2006}
+\title{An Assembler}
+
+\author{Daniel Bastos\\
+        \tt{dbastos@toledo.com}}
+
+\maketitle
+
+\abstract{This is an educational assembler studied when reading "The
+AWK Programming Language" by Brian Kernighan. It's very simple, but
+quite educational. It's written in AWK, the language the book
+describes.}
+
+\setlength{\parskip}{7pt}
+\setlength{\parindent}{0pt}
+
+\section{Introduction} We're writing an assembler that implements a
+simple assembly language for a simple hypothetical computer. The
+computer has one register --- which we often make reference to by using
+the symbol [[%r]] ---, ten instructions and a memory capable of a
+thousand words. Each word is composed of 5 bits, each bit is represented
+by a digit. If a word is a machine instruction, then the first two bits
+encode the operation and the last three digits are the memory
+address. The memory addresses range from 0 to 999.
+
+Each program is a sequence of statements, where each statement is
+separated by a new line character. Each statement is composed of three
+fields: a label, an operation and an operand. Spaces or tabs, in any
+amount, separate the fields. Comments start anywhere after the character
+[[#]] and end once a new line is found.
+
+We implement the following instructions: [[const]], [[get]], [[put]],
+[[ld]], [[st]], [[add]], [[sub]], [[jp]], [[jz]], [[j]], [[halt]]. These
+instructions, respectively, have the operation codes 00, 01, 02, 03, 04,
+05, 06, 07, 08, 09, 10. The keyword [[const]] isn't precisely an
+instruction. It is an assembler directive to define a constant.
+%
+%\begin{verbatim}
+%label const value             # defines a constant
+%get                           # read input into register
+%put                           # writes register data to output               
+%ld mem                        # loads mem's data into register
+%st mem                        # saves register's data into mem
+%add mem                       # register + *mem
+%sub mem                       # register - *mem
+%jp mem                        # goto mem if %r is positive
+%jz mem                        # goto mem if %r is zero
+%j mem                         # goto mem
+%halt                          # exit(0)
+%\end{verbatim}
+
+The instruction [[get]] reads a number from the input into the
+register. The instruction [[put]] writes the data from the register to
+the output. The instruction [[ld mem]] loads the register with the data
+in memory location [[mem]]. The instruction [[st]] saves the data
+contained in the register at the memory location [[mem]]. The
+instruction [[add]] adds the number from the location [[mem]] to the
+number in the register. The instruction [[sub]] substracts the number
+from the location [[mem]] to the number in the register. The instruction
+[[jp]] jumps execution to [[mem]] if the number in the register is
+positive. The instruction [[jz]] jumps execution to [[mem]] if the
+number in the register is zero. The instruction [[j]] jumps execution to
+[[mem]] unconditionately.

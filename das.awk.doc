@@ -1,0 +1,66 @@
+
+@ \section{Implementing the assembler} The assembler takes the first
+argument of the command line as the given to be assembled. Object code
+is written to [[.o]] files. The array [[op]] stores the operation codes
+defined in the [[split]] line. In the first pass, we remove comments,
+load the symbols into the [[sym]] array, and save the object code in the
+[[.o]] file.
+
+The way we load the symbols into the [[sym]] array is by making the
+symbol name the index of the array, and the value of the index is the
+memory position of the symbol.
+
+<<das.awk>>=
+
+BEGIN {
+
+  if (ARGC < 2) { print "Usage: das program.das"; exit 0; }
+
+  src = ARGV[1]; sub(/\..*/,"",ARGV[1]); 
+  exe = ARGV[1]; obj = exe ".o"; ARGV[1] = "";
+
+  n = split("const get put ld st add sub jp jz j halt", x);
+  for (i = 1; i <= n; ++i) op[x[i]] = i - 1;
+
+  FS = "[ \t]+"; # first pass
+  while (getline < src > 0) {
+    if ($0 ~ /^[ \t]*#/ || $0 ~ /^[ \t]*$/) continue;
+    human[c++] = $0; sub(/\#.*/, ""); sym[$1] = nextmem;
+    if ($2 != "") { print $2 "\t" $3 > obj; ++nextmem; }
+  }
+
+  close(obj);
+
+  nextmem = c = 0; # second pass
+  while (getline < obj > 0) {
+    if ($2 !~ /^[0-9]*$/) { $2 = sym[$2]; }
+    mem[nextmem++] = 1000 * op[$1] + $2; 
+    printf "%4d:  %05d  %s\n", c, mem[c], human[c]; ++c;
+  }
+
+  e = --c;
+
+  for (c = 0; c <= e; ++c) print mem[c] > exe
+  system("chmod 0755 " exe);
+}
+
+@ On the second pass, if the second argument of the line is not a
+number, then it's because the programmer used a label, so we must
+recover the memory address of that label in the array [[sym]] which we
+computed in the first pass.
+
+The next step is the generation of machine code; for our hypothetical
+computer, we encode instructions by bundling the operation code with the
+the argument's memory address. Each bundle occupies a word, where the
+first two bits are the instruction itself and the last three are the
+memory address. The bundling is simple: we multiply the operation code
+by 1000, so we're always adding three zero digits after the operation
+code. The memory layout ranges from 0 to 999, so we need only three
+digits to save the highest block of memory. So, we can simply add the
+argument's memory address.
+
+Before we write the executable, we create a memory dump together with
+the human assembly code. The first field of the memory dump is the
+memory address of that instruction, so we start at zero. The second
+field is the machine code, and the rest of the line is the original
+source code. It's easy to debug programs this way.

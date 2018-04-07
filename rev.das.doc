@@ -1,0 +1,31 @@
+
+@ Now let's write a smarter program; we will call it [[rev]]; [[rev]]
+will print the sequence of numbers always in reverse order until it
+reaches zero. Once it reaches zero, we end execution.
+
+<<rev.das>>=
+
+# prints a descending sequence of numbers
+
+        get           # read first number
+loop    put
+        jp      pos   # jump to pos if positive
+        add     one   # increment %r
+        j       test  
+pos     sub     one   # decrement %r
+test    jz      done  # if it's zero, halt
+        j       loop  
+
+done    halt
+one     const   1
+
+@ Notice that we have to use a roundabout way to decrement or increment
+a number in the register. We must allocate memory for the number 1, and
+then make reference to it by using it's memory location with the
+instruction sub. The same happened in [[seq]] when we wanted to
+increment the number in the register. It would be nice to have a
+instruction or a change in the syntax of the language that allows us to
+simply increment or decrement the number in the register by some
+constant. If we add this recourse, then we could create an assembler
+instruction --- not a machine instruction --- to increment and decrement
+the register by one; something like [[inc]] and [[dec]].
